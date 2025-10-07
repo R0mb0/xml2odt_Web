@@ -7,7 +7,7 @@ A modern, client-side web tool for converting one or more ODT `content.xml` file
 
 <div align="center">
 
-## [👉 Click here to test the page! 👈](https://r0mb0.github.io/xml2odt-web/index.html)
+## [👉 Click here to test the page! 👈](https://r0mb0.github.io/xml2odt_Web/)
 
 <!-- Add screenshots here if available -->
 <!--
