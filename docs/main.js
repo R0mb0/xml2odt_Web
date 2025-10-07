@@ -63,13 +63,22 @@ function showModal(message, onConfirm) {
   modalCancel.addEventListener('click', handlerCancel);
 }
 
-// --- XML validation ---
-const ODT_ROOT_TAG = "office:document-content";
-const REQUIRED_NAMESPACES = [
-  "xmlns:office", "xmlns:text", "xmlns:style", "xmlns:table", "xmlns:draw"
-];
-const REQUIRED_CHILD_TAGS = ["office:body", "office:text"];
-const REQUIRED_ROOT_ATTRIBUTES = ["office:version"];
+// --- Document type detection and validation ---
+function detectDocumentType(xmlText) {
+  let docType = "unknown";
+  try {
+    const xml = new window.DOMParser().parseFromString(xmlText, "application/xml");
+    const root = xml.documentElement;
+    if (!root || root.tagName !== "office:document-content") return docType;
+    const hasOfficeText = root.getElementsByTagName("office:text").length > 0;
+    const hasSpreadsheet = root.getElementsByTagName("office:spreadsheet").length > 0;
+    if (hasOfficeText) docType = "odt";
+    else if (hasSpreadsheet) docType = "ods";
+  } catch (e) {
+    docType = "unknown";
+  }
+  return docType;
+}
 
 function validateXML(xmlText) {
   const result = {
@@ -80,7 +89,8 @@ function validateXML(xmlText) {
     requiredChildren: false,
     errors: [],
     warnings: [],
-    suggestions: []
+    suggestions: [],
+    docType: "unknown"
   };
 
   let xml = null;
@@ -97,19 +107,26 @@ function validateXML(xmlText) {
     return result;
   }
 
-  // Check root tag name
+  // Detect ODT or ODS
   const root = xml.documentElement;
-  if (!root || root.tagName !== ODT_ROOT_TAG) {
-    result.errors.push(`Root tag must be <${ODT_ROOT_TAG}> but found <${root ? root.tagName : "none"}>.`);
+  result.docType = detectDocumentType(xmlText);
+
+  if (!root || root.tagName !== "office:document-content") {
+    result.errors.push(`Root tag must be <office:document-content> but found <${root ? root.tagName : "none"}>.`);
   } else {
     result.rootTag = true;
   }
 
   // Check required namespaces
+  const REQUIRED_NAMESPACES = [
+    "xmlns:office", "xmlns:style", "xmlns:table"
+  ];
+  const REQUIRED_ROOT_ATTRIBUTES = ["office:version"];
+
   if (root) {
     const missingNs = REQUIRED_NAMESPACES.filter(ns => !root.hasAttribute(ns));
     if (missingNs.length) {
-      result.errors.push("Missing required ODT namespaces: " + missingNs.join(", "));
+      result.errors.push("Missing required ODF namespaces: " + missingNs.join(", "));
       result.suggestions.push("Add these namespaces to your root tag, e.g. " + missingNs.map(ns => `${ns}="..."`).join(" "));
     } else {
       result.odtNamespaces = true;
@@ -129,14 +146,28 @@ function validateXML(xmlText) {
 
   // Check required child tags
   if (root) {
-    const missingChildren = REQUIRED_CHILD_TAGS.filter(
-      tag => root.getElementsByTagName(tag).length === 0
-    );
-    if (missingChildren.length) {
-      result.errors.push("Missing required child tag(s): " + missingChildren.join(", "));
-      result.suggestions.push("Insert these tags inside your root, e.g. " + missingChildren.map(tag => `<${tag}>...</${tag}>`).join(" "));
+    if (result.docType === "odt") {
+      const missingChildren = ["office:body", "office:text"].filter(
+        tag => root.getElementsByTagName(tag).length === 0
+      );
+      if (missingChildren.length) {
+        result.errors.push("Missing required child tag(s): " + missingChildren.join(", "));
+        result.suggestions.push("Insert these tags inside your root, e.g. " + missingChildren.map(tag => `<${tag}>...</${tag}>`).join(" "));
+      } else {
+        result.requiredChildren = true;
+      }
+    } else if (result.docType === "ods") {
+      const missingChildren = ["office:body", "office:spreadsheet"].filter(
+        tag => root.getElementsByTagName(tag).length === 0
+      );
+      if (missingChildren.length) {
+        result.errors.push("Missing required child tag(s): " + missingChildren.join(", "));
+        result.suggestions.push("Insert these tags inside your root, e.g. " + missingChildren.map(tag => `<${tag}>...</${tag}>`).join(" "));
+      } else {
+        result.requiredChildren = true;
+      }
     } else {
-      result.requiredChildren = true;
+      result.errors.push("Unknown document type. Expected ODT or ODS structure.");
     }
   }
 
@@ -147,7 +178,13 @@ function validateXML(xmlText) {
     result.requiredAttrs &&
     result.requiredChildren
   ) {
-    result.suggestions.push("Valid ODT content.xml. Ready for conversion.");
+    result.suggestions.push(
+      result.docType === "odt"
+        ? "Valid ODT content.xml. Ready for conversion."
+        : result.docType === "ods"
+        ? "Valid ODS content.xml. Ready for conversion."
+        : "Valid structure."
+    );
   }
 
   return result;
@@ -193,7 +230,6 @@ function handleFiles(e) {
     reader.readAsText(file);
   });
   if (files.length > 0) {
-    // Hide upload section after files loaded
     uploadContainer.classList.add('hidden');
   }
   if (files.length === 0) renderTable();
@@ -213,7 +249,7 @@ function renderTable() {
   // Table header
   const thead = document.createElement('thead');
   const headerRow = document.createElement('tr');
-  ['Preview', 'Filename', 'Actions'].forEach(h => {
+  ['Preview', 'Filename', 'Type', 'Actions'].forEach(h => {
     const th = document.createElement('th');
     th.textContent = h;
     headerRow.appendChild(th);
@@ -240,6 +276,24 @@ function renderTable() {
     tdName.style.fontWeight = "bold";
     tdName.style.verticalAlign = 'middle';
     tr.appendChild(tdName);
+
+    // Type column
+    const tdType = document.createElement('td');
+    tdType.textContent =
+      fileObj.validation.docType === "odt"
+        ? "ODT (Text)"
+        : fileObj.validation.docType === "ods"
+        ? "ODS (Spreadsheet)"
+        : "Unknown";
+    tdType.style.fontWeight = "bold";
+    tdType.style.color =
+      fileObj.validation.docType === "odt"
+        ? "#1976d2"
+        : fileObj.validation.docType === "ods"
+        ? "#009688"
+        : "#d32f2f";
+    tdType.style.verticalAlign = 'middle';
+    tr.appendChild(tdType);
 
     // Actions column
     const tdActions = document.createElement('td');
@@ -279,13 +333,13 @@ function renderTable() {
     // Convert/Delete buttons per file
     if (!fileObj.converted) {
       const convertBtn = document.createElement('button');
-      convertBtn.textContent = "CONVERT";
+      convertBtn.textContent = fileObj.validation.docType === "ods" ? "CONVERT TO ODS" : "CONVERT";
       convertBtn.className = "mdl-button mdl-js-button mdl-button--raised mdl-button--colored";
       convertBtn.style.backgroundColor = "#388e3c";
       convertBtn.style.color = "#fff";
       convertBtn.style.marginBottom = "0.7em";
       convertBtn.onclick = () => convertSingle(idx);
-      convertBtn.disabled = fileObj.validation.errors.length > 0;
+      convertBtn.disabled = fileObj.validation.errors.length > 0 || fileObj.validation.docType === "unknown";
       tdActions.appendChild(convertBtn);
     } else {
       const downloadBtn = document.createElement('button');
@@ -294,7 +348,7 @@ function renderTable() {
       downloadBtn.style.backgroundColor = "#1976d2";
       downloadBtn.style.color = "#fff";
       downloadBtn.style.marginBottom = "0.7em";
-      downloadBtn.onclick = () => downloadBlob(fileObj.odtBlob, getOdtName(fileObj.name));
+      downloadBtn.onclick = () => downloadBlob(fileObj.odtBlob, getOdtName(fileObj.name, fileObj.validation.docType));
       tdActions.appendChild(downloadBtn);
 
       const resetBtn = document.createElement('button');
@@ -337,7 +391,9 @@ function renderConvertActions() {
     convertAllBtn.style.color = "#fff";
     convertAllBtn.style.marginRight = "1.5em";
     convertAllBtn.onclick = convertAll;
-    convertAllBtn.disabled = uploadedFiles.some(f => f.validation.errors.length > 0);
+    convertAllBtn.disabled = uploadedFiles.some(
+      f => f.validation.errors.length > 0 || f.validation.docType === "unknown"
+    );
     footerDiv.appendChild(convertAllBtn);
 
     const resetBtn = document.createElement('button');
@@ -352,11 +408,13 @@ function renderConvertActions() {
   }
 }
 
-function getOdtName(xmlName) {
+function getOdtName(xmlName, docType) {
+  if (docType === "ods") {
+    return xmlName.replace(/\.xml$/i, ".ods");
+  }
   return xmlName.replace(/\.xml$/i, ".odt");
 }
 
-// --- ADD THIS FUNCTION ---
 function downloadBlob(blob, filename) {
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
@@ -367,16 +425,15 @@ function downloadBlob(blob, filename) {
   setTimeout(() => URL.revokeObjectURL(link.href), 10000);
 }
 
-// --- Conversion logic with error feedback ---
 function convertSingle(idx) {
   showProgress("Converting file...");
   const fileObj = uploadedFiles[idx];
-  generateOdtZip(fileObj.xmlText).then(blob => {
+  generateOdtZip(fileObj.xmlText, fileObj.validation.docType).then(blob => {
     fileObj.odtBlob = blob;
     fileObj.converted = true;
     hideProgress();
     showSnackbar("Conversion successful! Downloading file.", "#388e3c");
-    downloadBlob(blob, getOdtName(fileObj.name));
+    downloadBlob(blob, getOdtName(fileObj.name, fileObj.validation.docType));
     renderTable();
     renderConvertActions();
   }).catch(err => {
@@ -387,18 +444,20 @@ function convertSingle(idx) {
 
 function convertAll() {
   showProgress("Converting all files...");
-  const promises = uploadedFiles.map((fileObj) => generateOdtZip(fileObj.xmlText));
+  const promises = uploadedFiles.map((fileObj) =>
+    generateOdtZip(fileObj.xmlText, fileObj.validation.docType)
+  );
   Promise.all(promises).then(blobs => {
     const masterZip = new window.JSZip();
     blobs.forEach((blob, idx) => {
-      masterZip.file(getOdtName(uploadedFiles[idx].name), blob);
+      masterZip.file(getOdtName(uploadedFiles[idx].name, uploadedFiles[idx].validation.docType), blob);
       uploadedFiles[idx].odtBlob = blob;
       uploadedFiles[idx].converted = true;
     });
     masterZip.generateAsync({ type: "blob" }).then(zipBlob => {
       hideProgress();
       showSnackbar("All files converted! Downloading ZIP.", "#388e3c");
-      downloadBlob(zipBlob, "converted_odt_files.zip");
+      downloadBlob(zipBlob, "converted_odf_files.zip");
       renderTable();
       renderConvertActions();
     }).catch(err => {
