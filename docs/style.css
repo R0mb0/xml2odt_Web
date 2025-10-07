@@ -120,17 +120,29 @@ input:checked + .slider:before {
   overflow: hidden;
   box-shadow: 0 3px 14px #0002;
   background: none;
-  /* Add border for table itself */
   border: 2px solid var(--table-border, #e0e0e0);
 }
 
 /* Table borders: visible in both themes */
 .file-table th,
 .file-table td {
-  border-bottom: 1px solid var(--table-border, #e0e0e0);
   border-right: 1px solid var(--table-border, #e0e0e0);
   padding: 1.2em 0.7em;
   vertical-align: top;
+  border-bottom: none;
+}
+
+/* Perfect horizontal line between rows (fix for border alignment) */
+.file-table tr {
+  position: relative;
+}
+.file-table tr:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 0;
+  border-bottom: 1.5px solid var(--table-border, #444);
+  pointer-events: none;
 }
 
 .file-table th {
@@ -281,11 +293,6 @@ html[data-theme="dark"] .validity-msg {
   background: #223c2f;
   color: #b7ffc6;
   box-shadow: 0 2px 8px #388e3c30;
-}
-
-/* Spacing between table rows/elements */
-.file-table tr {
-  margin-bottom: 2.2em;
 }
 
 .file-table td {
