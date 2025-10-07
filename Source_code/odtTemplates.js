@@ -1,6 +1,10 @@
-export const MIMETYPE = "application/vnd.oasis.opendocument.text";
+export const MIMETYPES = {
+  odt: "application/vnd.oasis.opendocument.text",
+  ods: "application/vnd.oasis.opendocument.spreadsheet"
+};
 
-export const STYLES_XML = `<?xml version="1.0" encoding="UTF-8"?>
+export const STYLES_XML = {
+  odt: `<?xml version="1.0" encoding="UTF-8"?>
 <office:document-styles
  xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
  xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0"
@@ -14,7 +18,21 @@ export const STYLES_XML = `<?xml version="1.0" encoding="UTF-8"?>
    <style:master-page style:name="Standard" style:page-layout-name="Mpm1"/>
  </office:master-styles>
 </office:document-styles>
-`;
+`,
+  ods: `<?xml version="1.0" encoding="UTF-8"?>
+<office:document-styles
+ xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
+ xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0"
+ xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0"
+ office:version="1.2">
+ <office:styles/>
+ <office:automatic-styles/>
+ <office:master-styles>
+   <style:master-page style:name="Default" style:page-layout-name="pm1"/>
+ </office:master-styles>
+</office:document-styles>
+`
+};
 
 export const META_XML = `<?xml version="1.0" encoding="UTF-8"?>
 <office:document-meta
