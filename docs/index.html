@@ -9,10 +9,17 @@
   <!-- Material Design Lite (MDL) for basic Material Design look -->
   <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
   <link rel="stylesheet" href="style.css">
-  <!-- Prism.js for syntax highlighting -->
   <link rel="stylesheet" href="vendor/prism.css">
 </head>
 <body>
+  <!-- Theme switch toggle in top right -->
+  <div id="theme-toggle-container">
+    <label class="switch">
+      <input type="checkbox" id="theme-toggle"/>
+      <span class="slider"></span>
+    </label>
+    <span id="theme-label">Dark</span>
+  </div>
   <main class="mdl-layout__content">
     <section class="centered">
       <h1>Convert your XML to ODT</h1>
@@ -28,9 +35,20 @@
       <div id="conversion-progress" class="hidden"></div>
     </section>
   </main>
+  <!-- Snackbar for feedback -->
+  <div id="snackbar"></div>
+  <!-- Modal for confirmation -->
+  <div id="modal-overlay" class="hidden">
+    <div id="modal-dialog">
+      <div id="modal-message"></div>
+      <div id="modal-actions">
+        <button id="modal-confirm" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">Yes</button>
+        <button id="modal-cancel" class="mdl-button mdl-js-button mdl-button--raised">Cancel</button>
+      </div>
+    </div>
+  </div>
   <script src="vendor/prism.js"></script>
   <script src="vendor/jszip.min.js"></script>
-  <!-- Use module type for main.js -->
   <script type="module" src="main.js"></script>
 </body>
 </html>
