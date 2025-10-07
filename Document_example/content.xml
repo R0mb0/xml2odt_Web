@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<office:document-content
+    xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
+    xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0"
+    xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0"
+    xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0"
+    xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0"
+    xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0"
+    xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0"
+    xmlns:math="http://www.w3.org/1998/Math/MathML"
+    xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0"
+    xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0"
+    office:version="1.2">
+  <office:body>
+    <office:text>
+      <text:p text:style-name="Heading1">Titolo del Documento: <text:span text:style-name="Underline">__________________________</text:span></text:p>
+      <text:p text:style-name="Heading2">Sottotitolo: <text:span text:style-name="Underline">__________________________</text:span></text:p>
+      <text:p>Data di pubblicazione: <text:span text:style-name="Underline">____/____/_______</text:span></text:p>
+      <text:p>Tag: <text:span text:style-name="Underline">_______________________________________</text:span></text:p>
+      <text:p/>
+      <text:p text:style-name="Heading2">Sezione 1 – Dati Anagrafici</text:p>
+      <text:p>Nome: <text:span text:style-name="Underline">______________________</text:span> Cognome: <text:span text:style-name="Underline">______________________</text:span></text:p>
+      <text:p>Data di nascita: <text:span text:style-name="Underline">____/____/_______</text:span> Codice Fiscale: <text:span text:style-name="Underline">______________________</text:span></text:p>
+      <text:p/>
+      <text:p text:style-name="Heading2">Sezione 2 – Informazioni di Contatto</text:p>
+      <text:p>Email: <text:span text:style-name="Underline">______________________________</text:span> Telefono: <text:span text:style-name="Underline">______________________________</text:span></text:p>
+      <text:p/>
+      <text:p text:style-name="Heading2">Sezione 3 – Tipo di richiesta (selezionare una o più opzioni):</text:p>
+      <text:p><text:span text:style-name="Box">☐</text:span> Nuova iscrizione</text:p>
+      <text:p><text:span text:style-name="Box">☐</text:span> Aggiornamento dati</text:p>
+      <text:p><text:span text:style-name="Box">☐</text:span> Cancellazione</text:p>
+      <text:p><text:span text:style-name="Box">☐</text:span> Altro: <text:span text:style-name="Underline">__________________________</text:span></text:p>
+      <text:p/>
+      <text:p text:style-name="Heading2">Sezione 4 – Scegli il tipo di documento:</text:p>
+      <text:p><text:span text:style-name="Circle">○</text:span> Documento semplice</text:p>
+      <text:p><text:span text:style-name="Circle">○</text:span> Documento avanzato</text:p>
+      <text:p><text:span text:style-name="Circle">○</text:span> Documento personalizzato</text:p>
+      <text:p/>
+      <text:p text:style-name="Heading2">Sezione 5 – Hai già compilato questo modulo in precedenza?</text:p>
+      <text:p><text:span text:style-name="Box">☐</text:span> Sì <text:span text:style-name="Box">☐</text:span> No</text:p>
+      <text:p/>
+      <text:p text:style-name="Heading2">Sezione 6 – Note aggiuntive:</text:p>
+      <text:p><text:span text:style-name="Underline">_______________________________________</text:span></text:p>
+      <text:p><text:span text:style-name="Underline">_______________________________________</text:span></text:p>
+      <text:p/>
+      <text:p>Firma: <text:span text:style-name="Underline">____________________</text:span> Data compilazione: <text:span text:style-name="Underline">____/____/_______</text:span></text:p>
+      <text:p/>
+      <text:p text:style-name="Comment">I campi compilabili sono sottolineati o preceduti da ☐ (checkbox) o ○ (scelta singola).</text:p>
+      <text:p text:style-name="Comment">Compilare solo dove indicato. Non modificare la struttura del documento.</text:p>
+    </office:text>
+  </office:body>
+</office:document-content>
